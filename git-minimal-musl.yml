@@ -1,0 +1,20 @@
+# https://nfpm.goreleaser.com/docs/configuration/
+name: "git-minimal-musl"
+arch: "${BUILD_ARCH}"
+platform: linux
+version: "2.52.0"
+release: "${BUILD_RELEASE}"
+maintainer: "J23 <fcharlie@users.noreply.github.com>"
+vendor: Baulk
+description: |
+  "Unofficial Git minimal build"
+homepage: "https://github.com/baulk/git-minimal"
+license: GPLv2
+rpm:
+  group: Unspecified
+  summary: Unofficial Git minimal build
+  compression: xz
+contents:
+  - src: _out
+    dst: /
+    type: tree
