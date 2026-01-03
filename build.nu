@@ -717,6 +717,7 @@ def main [
             "-flto",
             "-fuse-ld=mold",
             "-Wl,-O2,--as-needed,--gc-sections",
+            "-static",
             $"($SOURCE_DIR)/cmd/git-minimal/main.cc",
             "-o",
             $"($DESTDIR)($prefix)/cmd/git-minimal"
