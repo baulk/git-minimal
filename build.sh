@@ -91,8 +91,8 @@ esac
 rm -rf "$BUILD_TOOLS_TEMP" || exit
 
 BUILD_RELEASE="1"
-if [ "$GITHUB_RUN_ID" != "" ]; then
-	BUILD_RELEASE="$GITHUB_RUN_ID"
+if [ "$GITHUB_RUN_NUMBER" != "" ]; then
+	BUILD_RELEASE="$GITHUB_RUN_NUMBER"
 fi
 export BUILD_RELEASE
 

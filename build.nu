@@ -208,7 +208,7 @@ def main [
     let DESTDIR = $SOURCE_DIR | path join "_out"
     let QUARANTINE_DIR = $SOURCE_DIR | path join "_quarantine"
     let QUARANTINE_PREFIX = $SOURCE_DIR | path join "_quarantine/prefix"
-    let CA_BUNDLE = $"($DESTDIR)($prefix)/share/curl-ca-bundle.crt"
+    let CA_BUNDLE = $"($DESTDIR)($prefix)/share/git-minimal/curl-ca-bundle.crt"
     try {
         let CA_BUNDLE_DIRNAME = $CA_BUNDLE | path dirname
         mkdir $CA_BUNDLE_DIRNAME
@@ -575,7 +575,7 @@ def main [
         "-DBUILD_TESTING=OFF"
         "-DCURL_USE_LIBPSL=OFF"
         $"-DCURL_CA_EMBED=($CA_BUNDLE)"
-        $"-DCURL_CA_BUNDLE=($prefix)/share/curl-ca-bundle.crt"
+        $"-DCURL_CA_BUNDLE=($prefix)/share/git-minimal/curl-ca-bundle.crt"
         "-DENABLE_ARES=ON"
         "-DCURL_BROTLI=ON"
         "-DCURL_ZSTD=ON"
@@ -706,11 +706,33 @@ def main [
         }
     }
     if ($STATIC_LDFALGS | is-not-empty) {
-        let BUILD_VERSION = ($env | get GITHUB_REF? | default "v1.0") | str replace --regex '^refs/heads/' '' | str replace --regex '^refs/tags/' '' | str replace --all "/" "_"
+        let BUILD_VERSION = ($env | get GITHUB_REF_NAME? | default "v1.0") | str replace --all "/" "_"
         let BUILD_ARCHIVE_PREFIX = $"($BUILD_PACKAGE_NAME)-($BUILD_VERSION)-linux-($BUILD_ARCH)"
         print -e $"create ($BUILD_ARCHIVE_PREFIX).tar.xz"
         let DEST_NEWDIR = $"($DESTDIR)/($BUILD_ARCHIVE_PREFIX)"
         mv -f $"($DESTDIR)($prefix)" $DEST_NEWDIR
+        mkdir $"($DESTDIR)($prefix)/cmd"
+        let CXX = $env | get CXX? | default "g++"
+        let BUILD_CXXFLAGS = [
+            "-std=c++23","-O2",
+            $BUILD_MARCH,
+            "-flto",
+            "-fuse-ld=mold",
+            "-Wl,-O2,--as-needed,--gc-sections",
+            $"($SOURCE_DIR)/cmd/git-minimal/main.cc",
+            "-o",
+            $"($DESTDIR)($prefix)/cmd/git-minimal"
+        ]
+        if (Exec --cmd $CXX --args $BUILD_CXXFLAGS) == 0 {
+            print -e "build git-minimal launcher success"
+            Exec --cmd "ln" --args ["-sf","git-minimal",$"($DESTDIR)($prefix)/cmd/git"] | ignore
+            Exec --cmd "ln" --args ["-sf","git-minimal",$"($DESTDIR)($prefix)/cmd/curl"] | ignore
+            Exec --cmd "ln" --args ["-sf","git-minimal",$"($DESTDIR)($prefix)/cmd/git-receive-pack"] | ignore
+            Exec --cmd "ln" --args ["-sf","git-minimal",$"($DESTDIR)($prefix)/cmd/git-shell"] | ignore
+            Exec --cmd "ln" --args ["-sf","git-minimal",$"($DESTDIR)($prefix)/cmd/git-upload-archive"] | ignore
+            Exec --cmd "ln" --args ["-sf","git-minimal",$"($DESTDIR)($prefix)/cmd/git-upload-pack"] | ignore
+            Exec --cmd "ln" --args ["-sf","git-minimal",$"($DESTDIR)($prefix)/cmd/scalar"] | ignore
+        }
         # OR: cmake -E tar -cJvf file.tar.xz dir (not support -h)
         if (Exec --cmd "cmake" --args ["-E","tar","-cJvf", $"($SOURCE_DIR)/out/($BUILD_ARCHIVE_PREFIX).tar.xz",$BUILD_ARCHIVE_PREFIX] --wd $DESTDIR) != 0 {
             exit 1
