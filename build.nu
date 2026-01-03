@@ -709,8 +709,6 @@ def main [
         let BUILD_VERSION = ($env | get GITHUB_REF_NAME? | default "v1.0") | str replace --all "/" "_"
         let BUILD_ARCHIVE_PREFIX = $"($BUILD_PACKAGE_NAME)-($BUILD_VERSION)-linux-($BUILD_ARCH)"
         print -e $"create ($BUILD_ARCHIVE_PREFIX).tar.xz"
-        let DEST_NEWDIR = $"($DESTDIR)/($BUILD_ARCHIVE_PREFIX)"
-        mv -f $"($DESTDIR)($prefix)" $DEST_NEWDIR
         mkdir $"($DESTDIR)($prefix)/cmd"
         let CXX = $env | get CXX? | default "g++"
         let BUILD_CXXFLAGS = [
@@ -733,6 +731,8 @@ def main [
             Exec --cmd "ln" --args ["-sf","git-minimal",$"($DESTDIR)($prefix)/cmd/git-upload-pack"] | ignore
             Exec --cmd "ln" --args ["-sf","git-minimal",$"($DESTDIR)($prefix)/cmd/scalar"] | ignore
         }
+        let DEST_NEWDIR = $"($DESTDIR)/($BUILD_ARCHIVE_PREFIX)"
+        mv -f $"($DESTDIR)($prefix)" $DEST_NEWDIR
         # OR: cmake -E tar -cJvf file.tar.xz dir (not support -h)
         if (Exec --cmd "cmake" --args ["-E","tar","-cJvf", $"($SOURCE_DIR)/out/($BUILD_ARCHIVE_PREFIX).tar.xz",$BUILD_ARCHIVE_PREFIX] --wd $DESTDIR) != 0 {
             exit 1
