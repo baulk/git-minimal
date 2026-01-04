@@ -638,7 +638,6 @@ def main [
     }
 
     let additionalOptions = [
-        "RUNTIME_PREFIX = YesPlease"
         "NO_TCLTK=YesPlease"
         "NO_GETTEXT=YesPlease"
         "NO_GITWEB=YesPlease"
