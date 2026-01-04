@@ -143,7 +143,7 @@ std::filesystem::path search_root() {
   return std::filesystem::path(self).parent_path().parent_path(); // auto move
 }
 
-std::optional<std::filesystem::path> seach_command(const std::filesystem::path &prefix, const char *arg0) {
+std::optional<std::filesystem::path> search_command(const std::filesystem::path &prefix, const char *arg0) {
   auto command = prefix / "bin" / std::filesystem::path(arg0).filename();
   std::error_code ec;
   if (std::filesystem::exists(command)) {
@@ -165,7 +165,7 @@ int main(int argc, const char *argv[]) {
   }
   auto self = Executable();
   auto prefix = std::filesystem::path(self).parent_path().parent_path();
-  auto command = seach_command(prefix, argv[0]);
+  auto command = search_command(prefix, argv[0]);
   if (!command) {
     auto filename = std::filesystem::path(argv[0]).filename().string();
     fprintf(stderr, "git-minimal launcher fatal: command '$prefix/bin/%s' not found\n", filename.c_str());
