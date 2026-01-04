@@ -1,22 +1,20 @@
-#include <filesystem>
-#include <string>
-#include <ranges>
-#include <format>
-#include <vector>
-#include <cstring>
 #include <algorithm>
+#include <cstdlib>
+#include <cstring>
+#include <filesystem>
 #include <optional>
+#include <ranges>
+#include <string>
 #include <utility>
-#ifdef _WIN32
-#include <Windows.h>
-#include <process.h>
-constexpr const char Separator = ';';
-constexpr const std::string_view Separators = ";";
-#else
+#include <vector>
 #include <unistd.h>
+#if defined(__APPLE__)
+#include <mach-o/dyld.h>
+extern char **environ;
+#endif
+
 constexpr const char Separator = ':';
 constexpr const std::string_view Separators = ":";
-#endif
 
 namespace bela {
 template <class F> class final_act {
@@ -52,36 +50,12 @@ constexpr int memcasecmp(const char *s1, const char *s2, size_t len) noexcept {
   return 0;
 }
 
-bool EqualsIgnoreCase(std::string_view piece1, std::string_view piece2) noexcept {
+constexpr bool string_casecmp(std::string_view piece1, std::string_view piece2) noexcept {
   return (piece1.size() == piece2.size() && memcasecmp(piece1.data(), piece2.data(), piece1.size()) == 0);
 }
 
-bool StartsWithIgnoreCase(std::string_view text, std::string_view prefix) noexcept {
-  return (text.size() >= prefix.size()) && EqualsIgnoreCase(text.substr(0, prefix.size()), prefix);
-}
-
-std::string Executable() noexcept {
-#if defined(_WIN32) // WIN32
-  // std::wstring PathName;
-  // PathName.resize(PathSizeMax);
-  // auto size = ::GetModuleFileNameW(nullptr, PathName.data(), static_cast<DWORD>(PathName.size()));
-  // if (size == 0 || static_cast<size_t>(size) == PathSizeMax) {
-  //   return "";
-  // }
-  // PathName.resize(static_cast<size_t>(size));
-  // auto FileHandle = CreateFileW(PathName.data(), 0, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr,
-  //                               OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
-  // // FILE_FLAG_BACKUP_SEMANTICS open directory require
-  // if (FileHandle == INVALID_HANDLE_VALUE) {
-  //   return encode_into_u8(PathName);
-  // }
-  // auto AbsPath = readlink(FileHandle);
-  // ::CloseHandle(FileHandle);
-  // if (AbsPath) {
-  //   return encode_into_u8(*AbsPath);
-  // }
-  // return encode_into_u8(PathName);
-#elif defined(__APPLE__) // macOS
+std::string resolve_executable() noexcept {
+#if defined(__APPLE__) // macOS
   // On OS X the executable path is saved to the stack by dyld. Reading it
   // from there is much faster than calling dladdr, especially for large
   // binaries with symbols.
@@ -131,15 +105,11 @@ std::optional<std::string> search_bundle(const std::filesystem::path &prefix) {
   if (std::filesystem::exists(bundle, ec)) {
     return std::make_optional<>(bundle.string());
   }
-  bundle = prefix / "share/curl-ca-bundle.crt";
-  if (std::filesystem::exists(bundle, ec)) {
-    return std::make_optional<>(bundle.string());
-  }
   return std::nullopt;
 }
 
 std::filesystem::path search_root() {
-  auto self = Executable();
+  auto self = resolve_executable();
   return std::filesystem::path(self).parent_path().parent_path(); // auto move
 }
 
@@ -152,9 +122,36 @@ std::optional<std::filesystem::path> search_command(const std::filesystem::path 
   return std::nullopt;
 }
 
-#ifdef _WIN32
-int main(int argc, const char *argv[]) { return 0; }
-#else
+bool is_drop_env(std::string_view e) {
+  constexpr std::string_view dropEnv[] = {"PATH", "GIT_SSL_CAINFO", "GIT_EXEC_PATH", "GIT_TEMPLATE_DIR"};
+  for (const auto d : dropEnv) {
+    if (string_casecmp(e, d)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+template <typename... Args> char *string_cat(const Args &...args) {
+  const std::string_view sv[] = {args...};
+  size_t sz = 0;
+  for (const auto s : sv) {
+    sz += s.size();
+  }
+  char *newPtr = (char *)std::malloc(sz + 1);
+  if (newPtr == nullptr) {
+    perror("malloc");
+    exit(1);
+  }
+  auto p = newPtr;
+  for (const auto s : sv) {
+    memcpy(p, s.data(), s.size());
+    p += s.size();
+  }
+  newPtr[sz] = 0; // Ensure null-termination
+  return newPtr;
+}
+
 // $prefix/cmd/git
 // $prefix/cmd/git-upload-pack
 // $prefix/cmd/git-receive-pack
@@ -163,12 +160,12 @@ int main(int argc, const char *argv[]) {
     fprintf(stderr, "git-minimal launcher fatal: missing args\n");
     return 1;
   }
-  auto self = Executable();
+  auto self = resolve_executable();
   auto prefix = std::filesystem::path(self).parent_path().parent_path();
   auto command = search_command(prefix, argv[0]);
   if (!command) {
     auto filename = std::filesystem::path(argv[0]).filename().string();
-    fprintf(stderr, "git-minimal launcher fatal: command '$prefix/bin/%s' not found\n", filename.c_str());
+    fprintf(stderr, "git-minimal launcher fatal: command '$prefix/bin/%s' not found\n", argv[0]);
     return 1;
   }
   if (std::filesystem::equivalent(self, *command)) {
@@ -177,51 +174,59 @@ int main(int argc, const char *argv[]) {
   }
   auto basename = std::filesystem::path(argv[0]).filename().string();
   auto execPath = prefix / "libexec" / "git-core";
+  auto templatePath = prefix / "share" / "git-core" / "templates";
+
   std::vector<char *> newArgs;
-  newArgs.push_back(strdup(basename.data()));
-  for (int i = 1; i < argc; i++) {
-    newArgs.push_back(strdup(argv[i]));
-  }
-  newArgs.push_back(nullptr);
+  std::vector<char *> newEnviron;
   auto closer = bela::Final([&] {
     for (auto a : newArgs) {
       if (a != nullptr) {
         std::free(a);
       }
     }
+    for (auto e : newEnviron) {
+      if (e != nullptr) {
+        std::free(e);
+      }
+    }
   });
-  std::vector<char *> newEnviron;
-  std::string execEnv = std::format("GIT_EXEC_PATH={0}", execPath.string()); // GIT_EXEC_PATH
-  newEnviron.push_back(execEnv.data());
-  // https://en.cppreference.com/w/cpp/filesystem/path/formatter std::format support std::filesystem::path starts C++26
-  std::string newPath = std::format("PATH={0}{1}{2}", command->parent_path().string(), Separator, getenv("PATH"));
-  newEnviron.push_back(newPath.data());
+  // build args
+  newArgs.push_back(string_cat(basename));
+  for (int i = 1; i < argc; i++) {
+    newArgs.push_back(string_cat(argv[i]));
+  }
+  newArgs.push_back(nullptr);
+  // build environ
+  newEnviron.push_back(string_cat("GIT_EXEC_PATH=", execPath.string()));        // GIT_EXEC_PATH
+  newEnviron.push_back(string_cat("GIT_TEMPLATE_DIR=", templatePath.string())); // GIT_TEMPLATE_DIR
+  // https://en.cppreference.com/w/cpp/filesystem/path/formatter std::format
+  // support std::filesystem::path starts C++26
+  const char *rawPath = getenv("PATH");
+  if (rawPath == nullptr) {
+    rawPath = "/usr/local/bin:/usr/bin";
+  }
+  auto bindir = command->parent_path();
+  newEnviron.push_back(string_cat("PATH=", bindir.string(), Separators, rawPath));
   // https://git-scm.com/docs/git-config GIT_SSL_CAINFO
   std::string caBundle;
   if (auto bundle = search_bundle(prefix); bundle) {
-    caBundle = std::format("GIT_SSL_CAINFO={0}", *bundle);
-    newEnviron.push_back(caBundle.data());
+    newEnviron.push_back(string_cat("GIT_SSL_CAINFO=", *bundle));
   }
-  constexpr std::string_view PathEnv = "PATH";
-  constexpr std::string_view CAINFO = "GIT_SSL_CAINFO";
-  constexpr std::string_view EXEC = "GIT_EXEC_PATH";
-  if (environ != nullptr) {
-    for (int i = 0;; i++) {
-      auto e = environ[i];
-      if (e == nullptr) {
-        break;
-      }
-      std::string_view s(e);
-      auto pos = s.find('=');
-      if (pos == std::string_view::npos) {
-        continue;
-      }
-      auto envKey = s.substr(0, pos);
-      if (EqualsIgnoreCase(envKey, PathEnv) || EqualsIgnoreCase(envKey, CAINFO) || EqualsIgnoreCase(envKey, EXEC)) {
-        continue;
-      }
-      newEnviron.push_back(e);
+  for (auto p = environ; p != nullptr; p++) {
+    auto e = *p;
+    if (e == nullptr) {
+      break;
     }
+    std::string_view es(e);
+    auto pos = es.find('=');
+    if (pos == std::string_view::npos) {
+      continue;
+    }
+    auto K = es.substr(0, pos);
+    if (is_drop_env(K)) {
+      continue;
+    }
+    newEnviron.push_back(string_cat(e));
   }
   newEnviron.push_back(nullptr);
   // int execve(const char *pathname, char *const argv[], char *const envp[]);
@@ -234,4 +239,3 @@ int main(int argc, const char *argv[]) {
   // Not reached if execve succeeds
   return 0;
 }
-#endif
