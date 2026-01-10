@@ -240,10 +240,12 @@ def main [
         ""
     }
     print -e $"BUILD_MARCH: ($BUILD_MARCH) STATIC_LDFALGS: ($STATIC_LDFALGS)"
-
-    let LTO_CFLAGS = $"-O2 -pipe ($BUILD_MARCH) -flto -I($QUARANTINE_PREFIX)/include"
-    let LTO_CXXFLAGS = $"-O2 -pipe ($BUILD_MARCH) -flto -I($QUARANTINE_PREFIX)/include"
-    let LTO_LDFLAGS = $"-O2 -flto -fuse-ld=mold -Wl,-O2,--as-needed,--gc-sections -L($QUARANTINE_PREFIX)/lib"
+    # GCC support -flto=auto but clang not
+    let ENV_CC = ($env | get CC? | default "")
+    let LTO_FLAGS = if ($ENV_CC | str contains "gcc") { "-flto=auto" } else { "-flto" }
+    let LTO_CFLAGS = $"-O2 -pipe ($BUILD_MARCH) ($LTO_FLAGS) -I($QUARANTINE_PREFIX)/include"
+    let LTO_CXXFLAGS = $"-O2 -pipe ($BUILD_MARCH) ($LTO_FLAGS) -I($QUARANTINE_PREFIX)/include"
+    let LTO_LDFLAGS = $"-O2 ($LTO_FLAGS) -fuse-ld=mold -Wl,-O2,--as-needed,--gc-sections -L($QUARANTINE_PREFIX)/lib"
     mut stageIndex = 0
     print $"stage-($stageIndex): download and unarchive source codes"
     $stageIndex += 1

@@ -71,7 +71,7 @@ loongarch64-unknown-linux-musl)
 	curl -o loongarch64-unknown-linux-musl.tar.xz -L "https://github.com/cross-tools/musl-cross/releases/download/$MUSL_CROSS_VERSION/loongarch64-unknown-linux-musl.tar.xz" || exit
 	tar -xf loongarch64-unknown-linux-musl.tar.xz || exit
 	sudo mv loongarch64-unknown-linux-musl "$BUILD_TOOLS_DIR" || exit
-	sudo ln -sf aarch64-unknown-linux-musl-strip "$BUILD_TOOLS_DIR/loongarch64-unknown-linux-musl/bin/strip"
+	sudo ln -sf loongarch64-unknown-linux-musl-strip "$BUILD_TOOLS_DIR/loongarch64-unknown-linux-musl/bin/strip"
 	export PATH="$BUILD_TOOLS_DIR/loongarch64-unknown-linux-musl/bin:$PATH"
 	export CC="loongarch64-unknown-linux-musl-gcc"
 	export CXX="loongarch64-unknown-linux-musl-g++"
