@@ -364,7 +364,10 @@ def main [
         $"-DCMAKE_SHARED_LINKER_FLAGS=($LTO_LDFLAGS)"
         ".."
     ]
-
+    
+    # TODO: Remove this patch after brotli releases a new version.
+    # https://github.com/google/brotli/commit/e230f474b87134e8c6c85b630084c612057f253e
+    Exec --cmd "patch" --args ["-Nbp1","-i",$"($SOURCE_DIR)/patch/brotli-1.2.0.patch"] --wd $"($QUARANTINE_DIR)/($BROTLI_DIRNAME)"|ignore
     if not (RunCMake --options $brotliOptions --wd $"($QUARANTINE_DIR)/($BROTLI_DIRNAME)/out") {
         exit 1
     }
