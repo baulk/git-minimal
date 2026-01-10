@@ -227,10 +227,13 @@ def main [
     } else {
         ""
     }
+    # https://github.com/loongson/la-toolchain-conventions
+    # https://gcc.gnu.org/onlinedocs/gcc-15.2.0/gcc/LoongArch-Options.html
     let BUILD_MARCH = match $BUILD_ARCH {
-        "amd64" => "-march=x86-64-v2"
-        "arm64" => "-march=armv8-a"
-        _       => ""
+        "amd64"       => "-march=x86-64-v2"
+        "arm64"       => "-march=armv8-a"
+        "loongarch64" => "-march=la664" # ONLY 3A6000 or later
+        _             => "" # default: please configure the new architecture correctly.
     }
     let STATIC_LDFALGS = if ($target | str ends-with "-musl") {
         "-lmimalloc -static"
@@ -725,9 +728,8 @@ def main [
         print -e $"create ($BUILD_ARCHIVE_PREFIX).tar.xz"
         mkdir $"($DESTDIR)($prefix)/cmd"
         let CXX = $env | get CXX? | default "g++"
-        let BUILD_CXXFLAGS = [
+        mut BUILD_CXXFLAGS = [
             "-std=c++23","-O2",
-            $BUILD_MARCH,
             "-flto",
             "-fuse-ld=mold",
             "-Wl,-O2,--as-needed,--gc-sections",
@@ -736,6 +738,9 @@ def main [
             "-o",
             $"($DESTDIR)($prefix)/cmd/git-minimal"
         ]
+        if ($BUILD_MARCH | is-not-empty) {
+            $BUILD_CXXFLAGS = $BUILD_CXXFLAGS | append $BUILD_MARCH
+        }
         if (Exec --cmd $CXX --args $BUILD_CXXFLAGS) == 0 {
             print -e "build git-minimal launcher success"
             Exec --cmd "ln" --args ["-sf","git-minimal",$"($DESTDIR)($prefix)/cmd/git"] | ignore
