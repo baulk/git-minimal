@@ -34,6 +34,9 @@ jobs:
           - target: "aarch64-unknown-linux-musl"
             triple: "aarch64-unknown-linux-musl"
             static: true
+          - target: "loongarch64-unknown-linux-musl"
+            triple: "loongarch64-unknown-linux-musl"
+            static: true
     steps:
       - uses: actions/checkout@v6
         with:

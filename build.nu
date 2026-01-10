@@ -222,6 +222,8 @@ def main [
         "amd64"
     } else if ($target | str starts-with "aarch64") {
         "arm64"
+    } else if ($target | str starts-with "loongarch64") {
+        "loongarch64"
     } else {
         ""
     }
@@ -692,16 +694,24 @@ def main [
     } else { 
         "git-minimal"
     }
-    $env.BUILD_ARCH = $BUILD_ARCH
-    if (Exec --cmd "nfpm" --args ["package","-f",$"($BUILD_PACKAGE_NAME).yml","-p","rpm","-t",$ARTIFACTS_OUTDIR] --wd $SOURCE_DIR) != 0 {
-        exit 1
-    }
-    if (Exec --cmd "nfpm" --args ["package","-f",$"($BUILD_PACKAGE_NAME).yml","-p","deb","-t",$ARTIFACTS_OUTDIR] --wd $SOURCE_DIR) != 0 {
-        exit 1
-    }
-    if ($target | str ends-with "-musl") {
-        if (Exec --cmd "nfpm" --args ["package","-f",$"($BUILD_PACKAGE_NAME).yml","-p","apk","-t",$ARTIFACTS_OUTDIR] --wd $SOURCE_DIR) != 0 {
+    do {
+        # SEE: https://wiki.debian.org/ArchitectureSpecificsMemo
+        # OR: https://wiki.debian.org/Ports/loong64
+        $env.BUILD_ARCH = if ($BUILD_ARCH == "loongarch64") { "loong64" } else { $BUILD_ARCH }
+        if (Exec --cmd "nfpm" --args ["package","-f",$"($BUILD_PACKAGE_NAME).yml","-p","deb","-t",$ARTIFACTS_OUTDIR] --wd $SOURCE_DIR) != 0 {
             exit 1
+        }
+    }
+    do {
+        # TODO: https://github.com/goreleaser/nfpm/pull/1018
+        $env.BUILD_ARCH = $BUILD_ARCH
+        if (Exec --cmd "nfpm" --args ["package","-f",$"($BUILD_PACKAGE_NAME).yml","-p","rpm","-t",$ARTIFACTS_OUTDIR] --wd $SOURCE_DIR) != 0 {
+            exit 1
+        }
+        if ($target | str ends-with "-musl") {
+            if (Exec --cmd "nfpm" --args ["package","-f",$"($BUILD_PACKAGE_NAME).yml","-p","apk","-t",$ARTIFACTS_OUTDIR] --wd $SOURCE_DIR) != 0 {
+                exit 1
+            }
         }
     }
     if ($STATIC_LDFALGS | is-not-empty) {
