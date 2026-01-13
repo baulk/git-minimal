@@ -231,7 +231,7 @@ def main [
     # https://gcc.gnu.org/onlinedocs/gcc-15.2.0/gcc/LoongArch-Options.html
     let BUILD_MARCH = match $BUILD_ARCH {
         "amd64"       => "-march=x86-64-v2"
-        "arm64"       => "-march=armv8-a"
+        "arm64"       => "-march=armv8.2-a" # ARMv8.2‑A --> 2025
         "loongarch64" => "-march=la664" # ONLY 3A6000 or later
         _             => "" # default: please configure the new architecture correctly.
     }
