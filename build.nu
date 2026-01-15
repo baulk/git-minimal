@@ -306,7 +306,7 @@ def main [
         exit 1
     }
     if ($target | str ends-with "-musl") {
-        print $"stage-($stageIndex): build mimalloc ($ZLIBNG_VERSION)"
+        print $"stage-($stageIndex): build mimalloc ($MIMALLOC_VERSION)"
         $stageIndex += 1
         let mimalloOptions = [
             "-G" "Unix Makefiles"
