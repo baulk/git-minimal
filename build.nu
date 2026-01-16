@@ -12,6 +12,12 @@ const BROTLI_HASH = "816c96e8e8f193b40151dad7e8ff37b1221d019dbcb9c35cd3fadbfe647
 const ZSTD_VERSION = "1.5.7"
 const ZSTD_HASH = "eb33e51f49a15e023950cd7825ca74a4a2b43db8354825ac24fc1b7ee09e6fa3"
 
+const AWSLC_VERSION = "1.66.1"
+const AWSLC_HASH = "44436ec404511e822c039acd903d4932e07d2a0a94a4f0cea4c545859fa2d922"
+
+const LIBRESSL_VERSION = "4.2.1"
+const LIBRESSL_HASH = "6d5c2f58583588ea791f4c8645004071d00dfa554a5bf788a006ca1eb5abd70b"
+
 const OPENSSL_VERSION = "3.6.0"
 const OPENSSL_HASH = "b6a5f44b7eb69e3fa35dbf15524405b44837a481d43d81daddde3ff21fcbb8e9"
 
@@ -26,9 +32,9 @@ const NGHTTP3_HASH = "b3083dae2ff30cf00d24d5fedd432479532c7b17d993d384103527b36c
 const NGHTTP2_VERSION = "1.68.0"
 const NGHTTP2_HASH = "5511d3128850e01b5b26ec92bf39df15381c767a63441438b25ad6235def902c"
 
-# # ngtcp2-${NGTCP2_VERSION}.tar.xz
-# const NGTCP2_VERSION = "1.19.0"
-# const NGTCP2_HASH = "f11f7da5065f2298f8b5f079a11f1a6f72389271b8dedd893c8eb26aba94bce9"
+# ngtcp2-${NGTCP2_VERSION}.tar.xz
+const NGTCP2_VERSION = "1.19.0"
+const NGTCP2_HASH = "f11f7da5065f2298f8b5f079a11f1a6f72389271b8dedd893c8eb26aba94bce9"
 
 # curl-${CURL_VERSION}.tar.xz
 const CURL_VERSION = "8.18.0"
@@ -58,6 +64,14 @@ let BROTLI_DIRNAME = $"brotli-($BROTLI_VERSION)"
 let ZSTD_URL = $"https://github.com/facebook/zstd/releases/download/v($ZSTD_VERSION)/zstd-($ZSTD_VERSION).tar.gz"
 let ZSTD_DIRNAME = $"zstd-($ZSTD_VERSION)"
 
+# https://github.com/aws/aws-lc/archive/refs/tags/v1.66.2.tar.gz
+let AWSLC_URL = $"https://github.com/aws/aws-lc/archive/refs/tags/v($AWSLC_VERSION).tar.gz"
+let AWSLC_DIRNAME = $"aws-lc-($AWSLC_VERSION)"
+
+# https://github.com/libressl/portable/releases/download/v4.2.1/libressl-4.2.1.tar.gz
+let LIBRESSL_URL = $"https://github.com/libressl/portable/releases/download/v($LIBRESSL_VERSION)/libressl-($LIBRESSL_VERSION).tar.gz"
+let LIBRESSL_DIRNAME = $"libressl-($LIBRESSL_VERSION)"
+
 let OPENSSL_URL = $"https://github.com/openssl/openssl/releases/download/openssl-($OPENSSL_VERSION)/openssl-($OPENSSL_VERSION).tar.gz"
 let OPENSSL_DIRNAME = $"openssl-($OPENSSL_VERSION)"
 
@@ -69,6 +83,9 @@ let NGHTTP3_DIRNAME = $"nghttp3-($NGHTTP3_VERSION)"
 
 let NGHTTP2_URL = $"https://github.com/nghttp2/nghttp2/releases/download/v($NGHTTP2_VERSION)/nghttp2-($NGHTTP2_VERSION).tar.xz"
 let NGHTTP2_DIRNAME = $"nghttp2-($NGHTTP2_VERSION)"
+
+let NGTCP2_URL = $"https://github.com/ngtcp2/ngtcp2/releases/download/v($NGTCP2_VERSION)/ngtcp2-($NGTCP2_VERSION).tar.xz"
+let NGTCP2_DIRNAME = $"ngtcp2-($NGTCP2_VERSION)"
 
 let PCRE2_URL = $"https://github.com/PCRE2Project/pcre2/releases/download/pcre2-($PCRE2_VERSION)/pcre2-($PCRE2_VERSION).tar.gz"
 let PCRE2_DIRNAME = $"pcre2-($PCRE2_VERSION)"
