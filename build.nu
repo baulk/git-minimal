@@ -222,15 +222,6 @@ def main [
         print -e $"mkdir error: ($err.msg)"
         exit 1
     }
-    let BUILD_ARCH = if ($target | str starts-with "x86_64") {
-        "amd64"
-    } else if ($target | str starts-with "aarch64") {
-        "arm64"
-    } else if ($target | str starts-with "loongarch64") {
-        "loongarch64"
-    } else {
-        ""
-    }
     let CMAKE_ARCH = if ($target | str starts-with "x86_64") {
         "x86_64"
     } else if ($target | str starts-with "aarch64") {
@@ -240,6 +231,7 @@ def main [
     } else {
         "generic"
     }
+    let BUILD_ARCH = if ($CMAKE_ARCH == "x86_64") { "amd64" } else { $CMAKE_ARCH }
     # https://github.com/loongson/la-toolchain-conventions
     # https://gcc.gnu.org/onlinedocs/gcc-15.2.0/gcc/LoongArch-Options.html
     let BUILD_MARCH = match $BUILD_ARCH {
@@ -532,7 +524,7 @@ def main [
 
     print $"stage-($stageIndex): build ngtcp2 ($NGTCP2_VERSION)"
     $stageIndex += 1
-    mut ngtcp2Options = [
+    let ngtcp2Options = [
         "-G" "Unix Makefiles"
         "-DCMAKE_SYSTEM_NAME=Linux"
         $"-DCMAKE_SYSTEM_PROCESSOR=($CMAKE_ARCH)"
@@ -613,6 +605,7 @@ def main [
 
     print $"stage-($stageIndex): build cURL ($CURL_VERSION)"
     $stageIndex += 1
+    let USE_ECH = if ($BUILD_ARCH == "amd64" or $BUILD_ARCH == "aarch64") {} else { "ON" }
     mut curlOptions = [
         "-G" "Unix Makefiles"
         "-DCMAKE_SYSTEM_NAME=Linux"
@@ -635,7 +628,7 @@ def main [
         "-DUSE_NGTCP2=ON"
         "-DHAVE_BORINGSSL=0"
         "-DHAVE_AWSLC=1"
-        "-DUSE_ECH=ON"
+        $"-DUSE_ECH=($USE_ECH)"
         "-DCMAKE_POSITION_INDEPENDENT_CODE=ON"
         $"-DCMAKE_INSTALL_PREFIX=($QUARANTINE_PREFIX)"
         $"-DCMAKE_PREFIX_PATH=($QUARANTINE_PREFIX)"
