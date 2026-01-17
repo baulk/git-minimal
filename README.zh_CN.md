@@ -7,8 +7,8 @@ Git on Linux 极简构建
 |包名|libc|可运行的系统|
 |---|---|---|
 |`git-minimal`|glibc|Linux，x86_64，glibc >= 2.39|
-|`git-minimal-static`|glibc（静态链接）|Linux，x86_64|
-|`git-minimal-musl`|musl（静态链接）|Linux，x86_64/aarch64|
+|`git-minimal-static`|glibc（静态链接）|Linux，x86_64（实验性的）|
+|`git-minimal-musl`|musl（静态链接）|Linux，x86_64/aarch64/loongarch64|
 
 ## 常见问题
 

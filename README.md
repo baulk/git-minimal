@@ -7,8 +7,8 @@ Git on Linux build script
 |Package|Libc|Runnable System|
 |---|---|---|
 |`git-minimal`|glibc|Linux, x86_64, glibc >= 2.39|
-|`git-minimal-static`|glibc (static link)|Linux, x86_64|
-|`git-minimal-musl`|musl (static link)|Linux, x86_64/aarch64|
+|`git-minimal-static`|glibc (static link)|Linux, x86_64 (**experimental**)|
+|`git-minimal-musl`|musl (static link)|Linux, x86_64/aarch64/loongarch64|
 
 ## Issues
 

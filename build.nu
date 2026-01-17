@@ -15,9 +15,6 @@ const ZSTD_HASH = "eb33e51f49a15e023950cd7825ca74a4a2b43db8354825ac24fc1b7ee09e6
 const AWSLC_VERSION = "1.66.1"
 const AWSLC_HASH = "44436ec404511e822c039acd903d4932e07d2a0a94a4f0cea4c545859fa2d922"
 
-const LIBRESSL_VERSION = "4.2.1"
-const LIBRESSL_HASH = "6d5c2f58583588ea791f4c8645004071d00dfa554a5bf788a006ca1eb5abd70b"
-
 const OPENSSL_VERSION = "3.6.0"
 const OPENSSL_HASH = "b6a5f44b7eb69e3fa35dbf15524405b44837a481d43d81daddde3ff21fcbb8e9"
 
@@ -67,10 +64,6 @@ let ZSTD_DIRNAME = $"zstd-($ZSTD_VERSION)"
 # https://github.com/aws/aws-lc/archive/refs/tags/v1.66.2.tar.gz
 let AWSLC_URL = $"https://github.com/aws/aws-lc/archive/refs/tags/v($AWSLC_VERSION).tar.gz"
 let AWSLC_DIRNAME = $"aws-lc-($AWSLC_VERSION)"
-
-# https://github.com/libressl/portable/releases/download/v4.2.1/libressl-4.2.1.tar.gz
-let LIBRESSL_URL = $"https://github.com/libressl/portable/releases/download/v($LIBRESSL_VERSION)/libressl-($LIBRESSL_VERSION).tar.gz"
-let LIBRESSL_DIRNAME = $"libressl-($LIBRESSL_VERSION)"
 
 let OPENSSL_URL = $"https://github.com/openssl/openssl/releases/download/openssl-($OPENSSL_VERSION)/openssl-($OPENSSL_VERSION).tar.gz"
 let OPENSSL_DIRNAME = $"openssl-($OPENSSL_VERSION)"
@@ -213,7 +206,7 @@ def RunCMake [
 }
 
 def main [
-    --target (-T): string = "x86_64-unknown-linux-gnu" # Compile git for the given target
+    --target (-T): string = "x86_64-linux-gnu" # Compile git for the given target
     --prefix (-P): string = "/usr/local" # Install Prefix
     --static (-S) # Static link libc (always true for musl)
 ] {
@@ -235,15 +228,16 @@ def main [
         print -e $"mkdir error: ($err.msg)"
         exit 1
     }
-    let BUILD_ARCH = if ($target | str starts-with "x86_64") {
-        "amd64"
+    let CMAKE_ARCH = if ($target | str starts-with "x86_64") {
+        "x86_64"
     } else if ($target | str starts-with "aarch64") {
-        "arm64"
+        "aarch64"
     } else if ($target | str starts-with "loongarch64") {
         "loongarch64"
     } else {
-        ""
+        "generic"
     }
+    let BUILD_ARCH = if ($CMAKE_ARCH == "x86_64") { "amd64" } else { $CMAKE_ARCH }
     # https://github.com/loongson/la-toolchain-conventions
     # https://gcc.gnu.org/onlinedocs/gcc-15.2.0/gcc/LoongArch-Options.html
     let BUILD_MARCH = match $BUILD_ARCH {
@@ -286,9 +280,16 @@ def main [
     if not (WebUnarchive -u $ZSTD_URL -o $"($ZSTD_DIRNAME).tar.gz" -H $ZSTD_HASH) {
         exit 1
     }
-    # openssl
-    if not (WebUnarchive -u $OPENSSL_URL -o $"($OPENSSL_DIRNAME).tar.gz" -H $OPENSSL_HASH) {
-        exit 1
+    if ($BUILD_ARCH == "loongarch64") {
+        # openssl
+        if not (WebUnarchive -u $OPENSSL_URL -o $"($OPENSSL_DIRNAME).tar.gz" -H $OPENSSL_HASH) {
+            exit 1
+        }
+    } else {
+        # aws-lc
+        if not (WebUnarchive -u $AWSLC_URL -o $"($AWSLC_DIRNAME).tar.gz" -H $AWSLC_HASH) {
+            exit 1
+        }
     }
     # c-ares
     if not (WebUnarchive -u $CARES_URL -o $"($CARES_DIRNAME).tar.gz" -H $CARES_HASH) {
@@ -300,6 +301,10 @@ def main [
     }
     # nghttp2
     if not (WebUnarchive -u $NGHTTP2_URL -o $"($NGHTTP2_DIRNAME).tar.xz" -H $NGHTTP2_HASH) {
+        exit 1
+    }
+    # ngtcp2
+    if not (WebUnarchive -u $NGTCP2_URL -o $"($NGTCP2_DIRNAME).tar.xz" -H $NGTCP2_HASH) {
         exit 1
     }
     # pcre2
@@ -327,6 +332,8 @@ def main [
         $stageIndex += 1
         let mimalloOptions = [
             "-G" "Unix Makefiles"
+            "-DCMAKE_SYSTEM_NAME=Linux"
+            $"-DCMAKE_SYSTEM_PROCESSOR=($CMAKE_ARCH)"
             "-DCMAKE_BUILD_TYPE=Release"
             "-DMI_BUILD_SHARED=OFF"
             "-DMI_BUILD_STATIC=ON"
@@ -350,6 +357,8 @@ def main [
     $stageIndex += 1
     let zlibngOptions = [
         "-G" "Unix Makefiles"
+        "-DCMAKE_SYSTEM_NAME=Linux"
+        $"-DCMAKE_SYSTEM_PROCESSOR=($CMAKE_ARCH)"
         "-DCMAKE_BUILD_TYPE=Release"
         "-DBUILD_SHARED_LIBS=OFF"
         "-DBUILD_TESTING=OFF"
@@ -373,6 +382,8 @@ def main [
     $stageIndex += 1
     let brotliOptions = [
         "-G" "Unix Makefiles"
+        "-DCMAKE_SYSTEM_NAME=Linux"
+        $"-DCMAKE_SYSTEM_PROCESSOR=($CMAKE_ARCH)"
         "-DCMAKE_BUILD_TYPE=Release"
         "-DBUILD_SHARED_LIBS=OFF"
         "-DBROTLI_BUILD_TOOLS=OFF"
@@ -398,6 +409,8 @@ def main [
     $stageIndex += 1
     let zstdOptions = [
         "-G" "Unix Makefiles"
+        "-DCMAKE_SYSTEM_NAME=Linux"
+        $"-DCMAKE_SYSTEM_PROCESSOR=($CMAKE_ARCH)"
         "-DCMAKE_BUILD_TYPE=Release"
         "-DZSTD_BUILD_STATIC=ON"
         "-DZSTD_BUILD_SHARED=OFF"
@@ -418,60 +431,83 @@ def main [
         exit 1
     }
 
-    # openssl
-    $stageIndex | do {
-        print $"stage-($in): build openssl ($OPENSSL_VERSION)"
-        
-        $env.CFLAGS = $LTO_CFLAGS
-        $env.CXXFLAGS = $LTO_CXXFLAGS
-        $env.LDFLASG = $LTO_LDFLAGS
-        mut opensslOptions = [
-            $"--prefix=($QUARANTINE_PREFIX)"
-            "--libdir=lib" # debain: lib, redhat: lib64 openssl: lib64
-            "no-filenames"
-            "no-legacy"
-            "no-autoload-config"
-            "no-apps"
-            "no-engine"
-            "no-module"
-            "no-dso"
-            "no-shared"
-            "no-srp"
-            "no-nextprotoneg"
-            "no-bf"
-            "no-rc4"
-            "no-cast"
-            "no-idea"
-            "no-cmac"
-            "no-rc2"
-            "no-mdc2"
-            "no-whirlpool"
-            "no-dsa"
-            "no-tests" 
-            "no-makedepend"
+    if ($BUILD_ARCH == "loongarch64") {
+        # openssl
+        $stageIndex | do {
+            print $"stage-($in): build openssl ($OPENSSL_VERSION)"
+            $env.CFLAGS = $LTO_CFLAGS
+            $env.CXXFLAGS = $LTO_CXXFLAGS
+            $env.LDFLASG = $LTO_LDFLAGS
+            let opensslOptions = [
+                $"--prefix=($QUARANTINE_PREFIX)"
+                "--libdir=lib" # debain: lib, redhat: lib64 openssl: lib64
+                "linux64-loongarch64"
+                "no-filenames"
+                "no-legacy"
+                "no-autoload-config"
+                "no-apps"
+                "no-engine"
+                "no-module"
+                "no-dso"
+                "no-shared"
+                "no-srp"
+                "no-nextprotoneg"
+                "no-bf"
+                "no-rc4"
+                "no-cast"
+                "no-idea"
+                "no-cmac"
+                "no-rc2"
+                "no-mdc2"
+                "no-whirlpool"
+                "no-dsa"
+                "no-tests"
+                "no-makedepend"
+            ]
+            # make/make install
+            let OPENSSL_SOURCE_DIR =  $"($QUARANTINE_DIR)/($OPENSSL_DIRNAME)"
+            let opensslScript = $"($OPENSSL_SOURCE_DIR)/config"
+            if (Exec --cmd $opensslScript --args $opensslOptions --wd $OPENSSL_SOURCE_DIR) != 0 {
+                exit 1
+            }
+            if (Exec --cmd "make" --args [$"-j($Core)","install_sw"] --wd $OPENSSL_SOURCE_DIR --ignore-stdout) != 0 {
+                exit 1
+            }
+        }
+        $stageIndex += 1
+    } else {
+        print $"stage-($stageIndex): build aws-lc ($AWSLC_VERSION)"
+        $stageIndex += 1
+        let awslcOptions = [
+            "-G" "Unix Makefiles"
+            "-DCMAKE_SYSTEM_NAME=Linux"
+            $"-DCMAKE_SYSTEM_PROCESSOR=($CMAKE_ARCH)"
+            "-DCMAKE_BUILD_TYPE=Release"
+            "-DBUILD_TOOL=OFF"
+            "-DDISABLE_GO=ON"
+            "-DDISABLE_PERL=ON"
+            "-DBUILD_SHARED_LIBS=OFF"
+            "-DBUILD_TESTING=OFF"
+            "-DCMAKE_POSITION_INDEPENDENT_CODE=ON"
+            $"-DCMAKE_INSTALL_PREFIX=($QUARANTINE_PREFIX)"
+            $"-DCMAKE_PREFIX_PATH=($QUARANTINE_PREFIX)"
+            $"-DCMAKE_C_FLAGS=($LTO_CFLAGS)"
+            $"-DCMAKE_CXX_FLAGS=($LTO_CXXFLAGS)"
+            $"-DCMAKE_EXE_LINKER_FLAGS=($LTO_LDFLAGS)"
+            $"-DCMAKE_SHARED_LINKER_FLAGS=($LTO_LDFLAGS)"
+            ".."
         ]
-        if ($target | str starts-with "aarch64") {
-            $opensslOptions = $opensslOptions | append "linux-aarch64"
-        } else if ($target | str starts-with "loongarch64") {
-            # loongarch64-unknown-linux-musl
-            $opensslOptions = $opensslOptions | append "linux64-loongarch64"
-        }
-        # make/make install
-        let OPENSSL_SOURCE_DIR =  $"($QUARANTINE_DIR)/($OPENSSL_DIRNAME)"
-        let opensslScript = $"($OPENSSL_SOURCE_DIR)/config"
-        if (Exec --cmd $opensslScript --args $opensslOptions --wd $OPENSSL_SOURCE_DIR) != 0 {
-            exit 1
-        }
-        if (Exec --cmd "make" --args [$"-j($Core)","install_sw"] --wd $OPENSSL_SOURCE_DIR --ignore-stdout) != 0 {
+        if not (RunCMake --options $awslcOptions --wd $"($QUARANTINE_DIR)/($AWSLC_DIRNAME)/build") {
             exit 1
         }
     }
-    $stageIndex += 1
 
     print $"stage-($stageIndex): build c-ares ($CARES_VERSION)"
     $stageIndex += 1
     let caresOptions = [
         "-G" "Unix Makefiles"
+        "-DCMAKE_SYSTEM_NAME=Linux"
+        $"-DCMAKE_SYSTEM_PROCESSOR=($CMAKE_ARCH)"
         "-DCMAKE_BUILD_TYPE=Release"
         "-DCARES_SYMBOL_HIDING=ON"
         "-DCARES_STATIC=ON"
@@ -498,6 +534,8 @@ def main [
     $stageIndex += 1
     let nghttp3Options = [
         "-G" "Unix Makefiles"
+        "-DCMAKE_SYSTEM_NAME=Linux"
+        $"-DCMAKE_SYSTEM_PROCESSOR=($CMAKE_ARCH)"
         "-DCMAKE_BUILD_TYPE=Release"
         "-DENABLE_LIB_ONLY=ON"
         "-DENABLE_STATIC_LIB=ON"
@@ -521,6 +559,8 @@ def main [
     $stageIndex += 1
     let nghttp2Options = [
         "-G" "Unix Makefiles"
+        "-DCMAKE_SYSTEM_NAME=Linux"
+        $"-DCMAKE_SYSTEM_PROCESSOR=($CMAKE_ARCH)"
         "-DCMAKE_BUILD_TYPE=Release"
         "-DENABLE_LIB_ONLY=ON"
         "-DBUILD_SHARED_LIBS=OFF"
@@ -541,10 +581,45 @@ def main [
         exit 1
     }
 
+    print $"stage-($stageIndex): build ngtcp2 ($NGTCP2_VERSION)"
+    $stageIndex += 1
+    # https://github.com/ngtcp2/ngtcp2/blob/main/CMakeOptions.txt
+    mut ngtcp2Options = [
+        "-G" "Unix Makefiles"
+        "-DCMAKE_SYSTEM_NAME=Linux"
+        $"-DCMAKE_SYSTEM_PROCESSOR=($CMAKE_ARCH)"
+        "-DCMAKE_BUILD_TYPE=Release"
+        "-DENABLE_LIB_ONLY=ON"
+        "-DENABLE_SHARED_LIB=OFF"
+        "-DENABLE_STATIC_LIB=ON"
+        "-DBUILD_TESTING=OFF"
+        "-DENABLE_DOC=OFF"
+        "-DCMAKE_POSITION_INDEPENDENT_CODE=ON"
+        $"-DCMAKE_INSTALL_PREFIX=($QUARANTINE_PREFIX)"
+        $"-DCMAKE_PREFIX_PATH=($QUARANTINE_PREFIX)"
+        $"-DCMAKE_C_FLAGS=($LTO_CFLAGS)"
+        $"-DCMAKE_CXX_FLAGS=($LTO_CXXFLAGS)"
+        $"-DCMAKE_EXE_LINKER_FLAGS=($LTO_LDFLAGS)"
+        $"-DCMAKE_SHARED_LINKER_FLAGS=($LTO_LDFLAGS)"
+        ".."
+    ]
+    if ($BUILD_ARCH == "loongarch64") {
+        $ngtcp2Options = $ngtcp2Options | append ["-DENABLE_OPENSSL=ON"]
+    } else {
+        $ngtcp2Options = $ngtcp2Options | append ["-DENABLE_OPENSSL=OFF","-DENABLE_BORINGSSL=ON"]
+    }
+
+    if not (RunCMake --options $ngtcp2Options --wd $"($QUARANTINE_DIR)/($NGTCP2_DIRNAME)/out") {
+        exit 1
+    }
+
+
     print $"stage-($stageIndex): build pcre2 ($PCRE2_VERSION)"
     $stageIndex += 1
     let pcre2Options = [
         "-G" "Unix Makefiles"
+        "-DCMAKE_SYSTEM_NAME=Linux"
+        $"-DCMAKE_SYSTEM_PROCESSOR=($CMAKE_ARCH)"
         "-DCMAKE_BUILD_TYPE=Release"
         "-DBUILD_SHARED_LIBS=OFF"
         "-DBUILD_STATIC_LIBS=ON"
@@ -569,6 +644,8 @@ def main [
     $stageIndex += 1
     let expatOptions = [
         "-G" "Unix Makefiles"
+        "-DCMAKE_SYSTEM_NAME=Linux"
+        $"-DCMAKE_SYSTEM_PROCESSOR=($CMAKE_ARCH)"
         "-DCMAKE_BUILD_TYPE=Release"
         "-DBUILD_SHARED_LIBS=OFF"
         "-DBUILD_STATIC_LIBS=ON"
@@ -591,8 +668,10 @@ def main [
 
     print $"stage-($stageIndex): build cURL ($CURL_VERSION)"
     $stageIndex += 1
-    let curlOptions = [
+    mut curlOptions = [
         "-G" "Unix Makefiles"
+        "-DCMAKE_SYSTEM_NAME=Linux"
+        $"-DCMAKE_SYSTEM_PROCESSOR=($CMAKE_ARCH)"
         "-DCMAKE_BUILD_TYPE=Release"
         "-DBUILD_SHARED_LIBS=OFF"
         "-DBUILD_STATIC_LIBS=ON"
@@ -603,13 +682,12 @@ def main [
         "-DCURL_USE_LIBPSL=OFF"
         $"-DCURL_CA_EMBED=($CA_BUNDLE)"
         $"-DCURL_CA_BUNDLE=($prefix)/share/git-minimal/curl-ca-bundle.crt"
+        "-DCURL_DISABLE_LDAP=ON"
         "-DENABLE_ARES=ON"
         "-DCURL_BROTLI=ON"
         "-DCURL_ZSTD=ON"
-        "-DCURL_DISABLE_LDAP=ON"
-        "-DCURL_USE_OPENSSL=ON"
-        "-DUSE_OPENSSL_QUIC=ON"
         "-DUSE_NGHTTP2=ON"
+        "-DUSE_NGTCP2=ON"
         "-DCMAKE_POSITION_INDEPENDENT_CODE=ON"
         $"-DCMAKE_INSTALL_PREFIX=($QUARANTINE_PREFIX)"
         $"-DCMAKE_PREFIX_PATH=($QUARANTINE_PREFIX)"
@@ -619,6 +697,11 @@ def main [
         $"-DCMAKE_SHARED_LINKER_FLAGS=($LTO_LDFLAGS)"
         ".."
     ]
+    if ($BUILD_ARCH == "loongarch64") {
+        $curlOptions = $curlOptions | append ["-DENABLE_OPENSSL=ON","-DHAVE_SSL_SET_QUIC_TLS_CBS=1","-DHAVE_LIBRESSL=0","-DHAVE_SSL_SET0_WBIO=1"]
+    } else {
+        $curlOptions = $curlOptions | append ["-DHAVE_BORINGSSL=0","-DHAVE_AWSLC=1","-DUSE_ECH=ON"]
+    }
 
     if not (RunCMake --options $curlOptions --wd $"($QUARANTINE_DIR)/($CURL_DIRNAME)/out" --strip) {
         exit 1
@@ -641,11 +724,11 @@ def main [
         $"--with-zlib=($QUARANTINE_PREFIX)"
         $"--with-expat=($QUARANTINE_PREFIX)"
         $"--with-curl=($QUARANTINE_PREFIX)"
+        $"--with-libpcre2=($QUARANTINE_PREFIX)"
         $"LIBS=($CURL_LDFLAGS)"
         "PTHREAD_LIBS=-pthread"
         $"CFLAGS=($LTO_CFLAGS)"
         $"LDFLAGS=($LTO_LDFLAGS) ($STATIC_LDFALGS)"
-        "USE_LIBPCRE2=YesPlease"
     ]
     if not ($target | str starts-with $nu.os-info.arch) {
         # If git's configure is not handled properly, cross-compilation will fail, and the configure cache mechanism needs to be used to intercept it.
