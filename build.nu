@@ -605,7 +605,7 @@ def main [
 
     print $"stage-($stageIndex): build cURL ($CURL_VERSION)"
     $stageIndex += 1
-    let USE_ECH = if ($BUILD_ARCH == "amd64" or $BUILD_ARCH == "aarch64") {} else { "ON" }
+    let USE_ECH = if ($BUILD_ARCH == "amd64" or $BUILD_ARCH == "aarch64") { "ON" } else { "OFF" }
     mut curlOptions = [
         "-G" "Unix Makefiles"
         "-DCMAKE_SYSTEM_NAME=Linux"
