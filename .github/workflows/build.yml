@@ -25,7 +25,7 @@ jobs:
           - target: "x86_64-linux-gnu"
             triple: "x86_64-linux-gnu"
             static: false
-          - target: "x86_64-linux-gnu [static]"
+          - target: "x86_64-linux-gnu-static"
             triple: "x86_64-linux-gnu"
             static: true
           - target: "x86_64-linux-musl"
