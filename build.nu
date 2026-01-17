@@ -15,9 +15,6 @@ const ZSTD_HASH = "eb33e51f49a15e023950cd7825ca74a4a2b43db8354825ac24fc1b7ee09e6
 const AWSLC_VERSION = "1.66.1"
 const AWSLC_HASH = "44436ec404511e822c039acd903d4932e07d2a0a94a4f0cea4c545859fa2d922"
 
-const LIBRESSL_VERSION = "4.2.1"
-const LIBRESSL_HASH = "6d5c2f58583588ea791f4c8645004071d00dfa554a5bf788a006ca1eb5abd70b"
-
 const CARES_VERSION = "1.34.6"
 const CARES_HASH = "912dd7cc3b3e8a79c52fd7fb9c0f4ecf0aaa73e45efda880266a2d6e26b84ef5"
 
@@ -64,10 +61,6 @@ let ZSTD_DIRNAME = $"zstd-($ZSTD_VERSION)"
 # https://github.com/aws/aws-lc/archive/refs/tags/v1.66.2.tar.gz
 let AWSLC_URL = $"https://github.com/aws/aws-lc/archive/refs/tags/v($AWSLC_VERSION).tar.gz"
 let AWSLC_DIRNAME = $"aws-lc-($AWSLC_VERSION)"
-
-# https://github.com/libressl/portable/releases/download/v4.2.1/libressl-4.2.1.tar.gz
-let LIBRESSL_URL = $"https://github.com/libressl/portable/releases/download/v($LIBRESSL_VERSION)/libressl-($LIBRESSL_VERSION).tar.gz"
-let LIBRESSL_DIRNAME = $"libressl-($LIBRESSL_VERSION)"
 
 let CARES_URL = $"https://github.com/c-ares/c-ares/releases/download/v($CARES_VERSION)/c-ares-($CARES_VERSION).tar.gz"
 let CARES_DIRNAME = $"c-ares-($CARES_VERSION)"
@@ -207,7 +200,7 @@ def RunCMake [
 }
 
 def main [
-    --target (-T): string = "x86_64-unknown-linux-gnu" # Compile git for the given target
+    --target (-T): string = "x86_64-linux-gnu" # Compile git for the given target
     --prefix (-P): string = "/usr/local" # Install Prefix
     --static (-S) # Static link libc (always true for musl)
 ] {
@@ -289,16 +282,9 @@ def main [
     if not (WebUnarchive -u $ZSTD_URL -o $"($ZSTD_DIRNAME).tar.gz" -H $ZSTD_HASH) {
         exit 1
     }
-    if ($target | str starts-with "loongarch64-") {
-        # libressl
-        if not (WebUnarchive -u $LIBRESSL_URL -o $"($LIBRESSL_DIRNAME).tar.gz" -H $LIBRESSL_HASH) {
-            exit 1
-        }
-    } else {
-        # aws-lc
-        if not (WebUnarchive -u $AWSLC_URL -o $"($AWSLC_DIRNAME).tar.gz" -H $AWSLC_HASH) {
-            exit 1
-        }
+    # aws-lc
+    if not (WebUnarchive -u $AWSLC_URL -o $"($AWSLC_DIRNAME).tar.gz" -H $AWSLC_HASH) {
+        exit 1
     }
     # c-ares
     if not (WebUnarchive -u $CARES_URL -o $"($CARES_DIRNAME).tar.gz" -H $CARES_HASH) {
@@ -440,54 +426,29 @@ def main [
         exit 1
     }
 
-    if ($target | str starts-with "loongarch64-") {
-        print $"stage-($stageIndex): build libressl ($LIBRESSL_VERSION)"
-        $stageIndex += 1
-        let libresslOptions = [
-            "-G" "Unix Makefiles"
-            "-DCMAKE_SYSTEM_NAME=Linux"
-            $"-DCMAKE_SYSTEM_PROCESSOR=($CMAKE_ARCH)"
-            "-DCMAKE_BUILD_TYPE=Release"
-            "-DLIBRESSL_TESTS=OFF"
-            "-DLIBRESSL_APPS=OFF"
-            "-DBUILD_SHARED_LIBS=OFF"
-            "-DCMAKE_POSITION_INDEPENDENT_CODE=ON"
-            $"-DCMAKE_INSTALL_PREFIX=($QUARANTINE_PREFIX)"
-            $"-DCMAKE_PREFIX_PATH=($QUARANTINE_PREFIX)"
-            $"-DCMAKE_C_FLAGS=($LTO_CFLAGS)"
-            $"-DCMAKE_CXX_FLAGS=($LTO_CXXFLAGS)"
-            $"-DCMAKE_EXE_LINKER_FLAGS=($LTO_LDFLAGS)"
-            $"-DCMAKE_SHARED_LINKER_FLAGS=($LTO_LDFLAGS)"
-            ".."
-        ]
-        if not (RunCMake --options $libresslOptions --wd $"($QUARANTINE_DIR)/($LIBRESSL_DIRNAME)/build") {
-            exit 1
-        }
-    } else {
-        print $"stage-($stageIndex): build aws-lc ($AWSLC_VERSION)"
-        $stageIndex += 1
-        let awslcOptions = [
-            "-G" "Unix Makefiles"
-            "-DCMAKE_SYSTEM_NAME=Linux"
-            $"-DCMAKE_SYSTEM_PROCESSOR=($CMAKE_ARCH)"
-            "-DCMAKE_BUILD_TYPE=Release"
-            "-DBUILD_TOOL=OFF"
-            "-DDISABLE_GO=ON"
-            "-DDISABLE_PERL=ON"
-            "-DBUILD_SHARED_LIBS=OFF"
-            "-DBUILD_TESTING=OFF"
-            "-DCMAKE_POSITION_INDEPENDENT_CODE=ON"
-            $"-DCMAKE_INSTALL_PREFIX=($QUARANTINE_PREFIX)"
-            $"-DCMAKE_PREFIX_PATH=($QUARANTINE_PREFIX)"
-            $"-DCMAKE_C_FLAGS=($LTO_CFLAGS)"
-            $"-DCMAKE_CXX_FLAGS=($LTO_CXXFLAGS)"
-            $"-DCMAKE_EXE_LINKER_FLAGS=($LTO_LDFLAGS)"
-            $"-DCMAKE_SHARED_LINKER_FLAGS=($LTO_LDFLAGS)"
-            ".."
-        ]
-        if not (RunCMake --options $awslcOptions --wd $"($QUARANTINE_DIR)/($AWSLC_DIRNAME)/build") {
-            exit 1
-        }
+    print $"stage-($stageIndex): build aws-lc ($AWSLC_VERSION)"
+    $stageIndex += 1
+    let awslcOptions = [
+        "-G" "Unix Makefiles"
+        "-DCMAKE_SYSTEM_NAME=Linux"
+        $"-DCMAKE_SYSTEM_PROCESSOR=($CMAKE_ARCH)"
+        "-DCMAKE_BUILD_TYPE=Release"
+        "-DBUILD_TOOL=OFF"
+        "-DDISABLE_GO=ON"
+        "-DDISABLE_PERL=ON"
+        "-DBUILD_SHARED_LIBS=OFF"
+        "-DBUILD_TESTING=OFF"
+        "-DCMAKE_POSITION_INDEPENDENT_CODE=ON"
+        $"-DCMAKE_INSTALL_PREFIX=($QUARANTINE_PREFIX)"
+        $"-DCMAKE_PREFIX_PATH=($QUARANTINE_PREFIX)"
+        $"-DCMAKE_C_FLAGS=($LTO_CFLAGS)"
+        $"-DCMAKE_CXX_FLAGS=($LTO_CXXFLAGS)"
+        $"-DCMAKE_EXE_LINKER_FLAGS=($LTO_LDFLAGS)"
+        $"-DCMAKE_SHARED_LINKER_FLAGS=($LTO_LDFLAGS)"
+        ".."
+    ]
+    if not (RunCMake --options $awslcOptions --wd $"($QUARANTINE_DIR)/($AWSLC_DIRNAME)/build") {
+        exit 1
     }
 
     print $"stage-($stageIndex): build c-ares ($CARES_VERSION)"
@@ -581,6 +542,8 @@ def main [
         "-DBUILD_STATIC_LIBS=ON"
         "-DBUILD_TESTING=OFF"
         "-DENABLE_DOC=OFF"
+        "-DENABLE_OPENSSL=OFF"
+        "-DENABLE_BORINGSSL=ON"
         "-DCMAKE_POSITION_INDEPENDENT_CODE=ON"
         $"-DCMAKE_INSTALL_PREFIX=($QUARANTINE_PREFIX)"
         $"-DCMAKE_PREFIX_PATH=($QUARANTINE_PREFIX)"
@@ -590,11 +553,6 @@ def main [
         $"-DCMAKE_SHARED_LINKER_FLAGS=($LTO_LDFLAGS)"
         ".."
     ]
-    if ($target | str starts-with "loongarch64-") {
-        $ngtcp2Options = $ngtcp2Options | append ["-DENABLE_OPENSSL=ON"]
-    } else {
-        $ngtcp2Options = $ngtcp2Options | append ["-DENABLE_OPENSSL=OFF","-DENABLE_BORINGSSL=ON"]
-    }
 
     if not (RunCMake --options $ngtcp2Options --wd $"($QUARANTINE_DIR)/($NGTCP2_DIRNAME)/out") {
         exit 1
@@ -675,6 +633,9 @@ def main [
         "-DCURL_DISABLE_LDAP=ON"
         "-DUSE_NGHTTP2=ON"
         "-DUSE_NGTCP2=ON"
+        "-DHAVE_BORINGSSL=0"
+        "-DHAVE_AWSLC=1"
+        "-DUSE_ECH=ON"
         "-DCMAKE_POSITION_INDEPENDENT_CODE=ON"
         $"-DCMAKE_INSTALL_PREFIX=($QUARANTINE_PREFIX)"
         $"-DCMAKE_PREFIX_PATH=($QUARANTINE_PREFIX)"
@@ -684,12 +645,6 @@ def main [
         $"-DCMAKE_SHARED_LINKER_FLAGS=($LTO_LDFLAGS)"
         ".."
     ]
-
-    if ($target | str starts-with "loongarch64-") {
-        $curlOptions = $curlOptions | append ["-DHAVE_LIBRESSL=1"]
-    } else {
-        $curlOptions = $curlOptions | append ["-DHAVE_BORINGSSL=0","-DHAVE_AWSLC=1","-DUSE_ECH=ON"]
-    }
 
     if not (RunCMake --options $curlOptions --wd $"($QUARANTINE_DIR)/($CURL_DIRNAME)/out" --strip) {
         exit 1
@@ -717,7 +672,6 @@ def main [
         "PTHREAD_LIBS=-pthread"
         $"CFLAGS=($LTO_CFLAGS)"
         $"LDFLAGS=($LTO_LDFLAGS) ($STATIC_LDFALGS)"
-        "USE_LIBPCRE2=YesPlease"
     ]
     if not ($target | str starts-with $nu.os-info.arch) {
         # If git's configure is not handled properly, cross-compilation will fail, and the configure cache mechanism needs to be used to intercept it.
