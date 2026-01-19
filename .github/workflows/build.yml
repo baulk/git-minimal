@@ -44,7 +44,7 @@ jobs:
       - name: Setup nu
         uses: hustcer/setup-nu@v3
         with:
-          version: 0.109.1
+          version: 0.110.0
       - name: Compile Git
         run: |
           ./build.sh --target ${{ matrix.triple }} --static ${{ matrix.static }}
