@@ -37,8 +37,8 @@ BUILD_TOOLS_DIR="$SOURCE_DIR/tools"
 BUILD_TOOLS_TEMP="$BUILD_TOOLS_DIR/temp"
 mkdir -p "$BUILD_TOOLS_TEMP" || exit
 cd "$BUILD_TOOLS_TEMP" || exit
-curl -o nfpm_2.44.1_Linux_x86_64.tar.gz -L https://github.com/goreleaser/nfpm/releases/download/v2.44.1/nfpm_2.44.1_Linux_x86_64.tar.gz || exit
-tar -xvf nfpm_2.44.1_Linux_x86_64.tar.gz || exit
+curl -o nfpm_2.44.2_Linux_x86_64.tar.gz -L https://github.com/goreleaser/nfpm/releases/download/v2.44.2/nfpm_2.44.2_Linux_x86_64.tar.gz || exit
+tar -xvf nfpm_2.44.2_Linux_x86_64.tar.gz || exit
 sudo mv -f nfpm /usr/local/bin || exit
 cd "$SOURCE_DIR" || exit
 
