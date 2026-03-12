@@ -12,8 +12,8 @@ const BROTLI_HASH = "816c96e8e8f193b40151dad7e8ff37b1221d019dbcb9c35cd3fadbfe647
 const ZSTD_VERSION = "1.5.7"
 const ZSTD_HASH = "eb33e51f49a15e023950cd7825ca74a4a2b43db8354825ac24fc1b7ee09e6fa3"
 
-const AWSLC_VERSION = "1.69.0"
-const AWSLC_HASH = "cdaa8dcd5f4ead8c82646fabef3c811381c4c7906de4489415e3fdf2558922f8"
+const AWSLC_VERSION = "1.70.0"
+const AWSLC_HASH = "533dd3f35639f44784c8ad9b73c279ec3959aba79c63b9726dd8066564b2058f"
 
 const OPENSSL_VERSION = "3.6.1"
 const OPENSSL_HASH = "b1bfedcd5b289ff22aee87c9d600f515767ebf45f77168cb6d64f231f518a82e"
@@ -34,8 +34,8 @@ const NGTCP2_VERSION = "1.21.0"
 const NGTCP2_HASH = "2d1c07e6aa509c017516c08307b0b707cd165a17275ab5f1caff9aaa0e3b6c7d"
 
 # curl-${CURL_VERSION}.tar.xz
-const CURL_VERSION = "8.18.0"
-const CURL_HASH = "40df79166e74aa20149365e11ee4c798a46ad57c34e4f68fd13100e2c9a91946"
+const CURL_VERSION = "8.19.0"
+const CURL_HASH = "4eb41489790d19e190d7ac7e18e82857cdd68af8f4e66b292ced562d333f11df"
 
 # https://github.com/PCRE2Project/pcre2/releases/download/pcre2-10.47/pcre2-10.47.tar.gz
 const PCRE2_VERSION = "10.47"
