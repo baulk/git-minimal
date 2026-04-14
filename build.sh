@@ -43,7 +43,7 @@ sudo mv -f nfpm /usr/local/bin || exit
 cd "$SOURCE_DIR" || exit
 
 MUSL_CROSS_VERSION="20250929"
-MOLD_VERSION="2.40.4"
+MOLD_VERSION="2.41.0"
 case $BUILD_TARGET in
 x86_64-linux-musl)
 	curl -o x86_64-unknown-linux-musl.tar.xz -L "https://github.com/cross-tools/musl-cross/releases/download/$MUSL_CROSS_VERSION/x86_64-unknown-linux-musl.tar.xz" || exit
