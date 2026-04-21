@@ -46,8 +46,8 @@ const EXPAT_VERSION = "2.7.3"
 const EXPAT_HASH = "71df8f40706a7bb0a80a5367079ea75d91da4f8c65c58ec59bcdfbf7decdab9f"
 
 # https://www.kernel.org/pub/software/scm/git/git-2.53.0.tar.gz
-const GIT_VERSION = "2.53.0"
-const GIT_HASH = "429dc0f5fe5f14109930cdbbb588c5d6ef5b8528910f0d738040744bebdc6275"
+const GIT_VERSION = "2.54.0"
+const GIT_HASH = "45e8107643a44e3ce46f5665beb35af3932fb0d70017687905ab5d4e3aafa8eb"
 
 let MIMALLOC_URL = $"https://github.com/microsoft/mimalloc/archive/refs/tags/v($MIMALLOC_VERSION).tar.gz"
 let MIMALLOC_DIRNAME = $"mimalloc-($MIMALLOC_VERSION)"
