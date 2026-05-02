@@ -34,8 +34,8 @@ const NGTCP2_VERSION = "1.22.1"
 const NGTCP2_HASH = "dfd2c68bd64b89847c611425b9487105c46e8447b5c21e6aeb00642c8fbe2ca8"
 
 # curl-${CURL_VERSION}.tar.xz
-const CURL_VERSION = "8.19.0"
-const CURL_HASH = "4eb41489790d19e190d7ac7e18e82857cdd68af8f4e66b292ced562d333f11df"
+const CURL_VERSION = "8.20.0"
+const CURL_HASH = "63fe2dc148ba0ceae89922ef838f7e5c946272c2e78b7c59fab4b79d3ce2b896"
 
 # https://github.com/PCRE2Project/pcre2/releases/download/pcre2-10.47/pcre2-10.47.tar.gz
 const PCRE2_VERSION = "10.47"
