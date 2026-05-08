@@ -37,12 +37,12 @@ BUILD_TOOLS_DIR="$SOURCE_DIR/tools"
 BUILD_TOOLS_TEMP="$BUILD_TOOLS_DIR/temp"
 mkdir -p "$BUILD_TOOLS_TEMP" || exit
 cd "$BUILD_TOOLS_TEMP" || exit
-curl -o nfpm_2.46.1_Linux_x86_64.tar.gz -L https://github.com/goreleaser/nfpm/releases/download/v2.46.1/nfpm_2.46.1_Linux_x86_64.tar.gz || exit
-tar -xvf nfpm_2.46.1_Linux_x86_64.tar.gz || exit
+curl -o nfpm_2.46.3_Linux_x86_64.tar.gz -L https://github.com/goreleaser/nfpm/releases/download/v2.46.3/nfpm_2.46.3_Linux_x86_64.tar.gz || exit
+tar -xvf nfpm_2.46.3_Linux_x86_64.tar.gz || exit
 sudo mv -f nfpm /usr/local/bin || exit
 cd "$SOURCE_DIR" || exit
 
-MUSL_CROSS_VERSION="20250929"
+MUSL_CROSS_VERSION="20260430"
 MOLD_VERSION="2.41.0"
 case $BUILD_TARGET in
 x86_64-linux-musl)
@@ -86,8 +86,8 @@ loongarch64-linux-musl)
 	export RANLIB="gcc-ranlib"
 	;;
 esac
-# https://github.com/cross-tools/musl-cross/releases/download/20250929/x86_64-unknown-linux-musl.tar.xz
-# https://github.com/cross-tools/musl-cross/releases/download/20250929/aarch64-unknown-linux-musl.tar.xz
+# https://github.com/cross-tools/musl-cross/releases/download/20260430/x86_64-unknown-linux-musl.tar.xz
+# https://github.com/cross-tools/musl-cross/releases/download/20260430/aarch64-unknown-linux-musl.tar.xz
 rm -rf "$BUILD_TOOLS_TEMP" || exit
 
 BUILD_RELEASE="1"
