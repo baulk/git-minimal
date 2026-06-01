@@ -42,8 +42,8 @@ const PCRE2_VERSION = "10.47"
 const PCRE2_HASH = "c08ae2388ef333e8403e670ad70c0a11f1eed021fd88308d7e02f596fcd9dc16"
 
 # https://github.com/libexpat/libexpat/releases/download/R_2_7_3/expat-2.7.3.tar.xz
-const EXPAT_VERSION = "2.7.5"
-const EXPAT_HASH = "1032dfef4ff17f70464827daa28369b20f6584d108bc36f17ab1676e1edd2f91"
+const EXPAT_VERSION = "2.8.1"
+const EXPAT_HASH = "10b195ee78160a908388180a8fe3603d4e9a12f4755fbf5f3816b23a9d750da0"
 
 # https://www.kernel.org/pub/software/scm/git/git-2.53.0.tar.gz
 const GIT_VERSION = "2.54.0"
