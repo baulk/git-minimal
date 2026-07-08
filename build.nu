@@ -45,9 +45,9 @@ const PCRE2_HASH = "c08ae2388ef333e8403e670ad70c0a11f1eed021fd88308d7e02f596fcd9
 const EXPAT_VERSION = "2.8.1"
 const EXPAT_HASH = "10b195ee78160a908388180a8fe3603d4e9a12f4755fbf5f3816b23a9d750da0"
 
-# https://www.kernel.org/pub/software/scm/git/git-2.53.0.tar.gz
-const GIT_VERSION = "2.54.0"
-const GIT_HASH = "45e8107643a44e3ce46f5665beb35af3932fb0d70017687905ab5d4e3aafa8eb"
+# https://www.kernel.org/pub/software/scm/git/git-2.55.0.tar.gz
+const GIT_VERSION = "2.55.0"
+const GIT_HASH = "0842dc384a23ac33ba3e570c4f3a8ded85963ee4713b1cd21153c3db41813d1e"
 
 let MIMALLOC_URL = $"https://github.com/microsoft/mimalloc/archive/refs/tags/v($MIMALLOC_VERSION).tar.gz"
 let MIMALLOC_DIRNAME = $"mimalloc-($MIMALLOC_VERSION)"
@@ -754,6 +754,7 @@ def main [
         "NO_PREL=YesPlease"
         "NO_PYTHON=YesPlease"
         "NO_SVN_TESTS=YesPlease"
+        "NO_RUST=YesPlease"
         $"CURL_LDFLAGS=($CURL_LDFLAGS)"
         "EXTLIBS += -lrt -lm -pthread"
         "undefine LINK_FUZZ_PROGRAMS"
