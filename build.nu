@@ -18,8 +18,8 @@ const AWSLC_HASH = "a6bf6adfc5f9bba559d28554b7d3581b15f2813f03bc9f2ae19f0d915e97
 const OPENSSL_VERSION = "4.0.1"
 const OPENSSL_HASH = "2db3f3a0d6ea4b59e1f094ace2c8cd536dffb87cdc39084c5afa1e6f7f37dd09"
 
-const CARES_VERSION = "1.34.6"
-const CARES_HASH = "912dd7cc3b3e8a79c52fd7fb9c0f4ecf0aaa73e45efda880266a2d6e26b84ef5"
+const CARES_VERSION = "1.34.8"
+const CARES_HASH = "c222b6d681096f9444d2c4863d2c1174019e27cacca0a4a5c114d36dd7d7bf78"
 
 # nghttp3-${NGHTTP3_VERSION}.tar.xz
 const NGHTTP3_VERSION = "1.17.0"
