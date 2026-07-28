@@ -30,8 +30,8 @@ const NGHTTP2_VERSION = "1.69.0"
 const NGHTTP2_HASH = "1fb324b6ec2c56f6bde0658f4139ffd8209fa9e77ce98fd7a5f63af8d0e508ad"
 
 # ngtcp2-${NGTCP2_VERSION}.tar.xz
-const NGTCP2_VERSION = "1.24.0"
-const NGTCP2_HASH = "7fa5ec2be0f0cbed8bc4ec89c0787dfa9d8ce678f1ed9477c52f30eb1a591207"
+const NGTCP2_VERSION = "1.25.0"
+const NGTCP2_HASH = "2a34d2484ba17847a5d11965704e9dd0fac4c6d8efc75ffe1ec7de66d8c6b6fb"
 
 # curl-${CURL_VERSION}.tar.xz
 const CURL_VERSION = "8.21.0"
