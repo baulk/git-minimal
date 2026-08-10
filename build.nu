@@ -12,8 +12,8 @@ const BROTLI_HASH = "816c96e8e8f193b40151dad7e8ff37b1221d019dbcb9c35cd3fadbfe647
 const ZSTD_VERSION = "1.5.7"
 const ZSTD_HASH = "eb33e51f49a15e023950cd7825ca74a4a2b43db8354825ac24fc1b7ee09e6fa3"
 
-const AWSLC_VERSION = "5.4.0"
-const AWSLC_HASH = "ef310fdb20a4172a357ab60a1adb217b21aceb34f02e29758edec5a02b1bcc0f"
+const AWSLC_VERSION = "5.5.0"
+const AWSLC_HASH = "d79a5beb1c2f7fd86a17d91eb230ae12da71dc28bedeb775c179863cf279c650"
 
 const OPENSSL_VERSION = "4.0.1"
 const OPENSSL_HASH = "2db3f3a0d6ea4b59e1f094ace2c8cd536dffb87cdc39084c5afa1e6f7f37dd09"
