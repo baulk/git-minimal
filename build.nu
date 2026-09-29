@@ -38,12 +38,12 @@ const CURL_VERSION = "8.22.0"
 const CURL_HASH = "f7ef3ae8a22e521f289803fe93543eb64c329b58aa73a9e224dfd915a2a5f4f7"
 
 # https://github.com/PCRE2Project/pcre2/releases/download/pcre2-10.47/pcre2-10.47.tar.gz
-const PCRE2_VERSION = "10.47"
-const PCRE2_HASH = "c08ae2388ef333e8403e670ad70c0a11f1eed021fd88308d7e02f596fcd9dc16"
+const PCRE2_VERSION = "10.49"
+const PCRE2_HASH = "929f0b20e62879252a15886b06c89f1edef61a363cbd5826fb041080a5e557ae"
 
 # https://github.com/libexpat/libexpat/releases/download/R_2_7_3/expat-2.7.3.tar.xz
-const EXPAT_VERSION = "2.8.1"
-const EXPAT_HASH = "10b195ee78160a908388180a8fe3603d4e9a12f4755fbf5f3816b23a9d750da0"
+const EXPAT_VERSION = "2.8.5"
+const EXPAT_HASH = "1e727b8933ec51a77a9a9d9afcf8e688bce45d907c13e36ab7393fe36e703182"
 
 # https://www.kernel.org/pub/software/scm/git/git-2.56.0.tar.gz
 const GIT_VERSION = "2.56.0"
