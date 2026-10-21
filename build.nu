@@ -1,7 +1,7 @@
 #!/usr/bin/env nu
 
-const MIMALLOC_VERSION = "3.5.0"
-const MIMALLOC_HASH = "1e432f0559a4ab512143b9bff7a700541a2c8d4712b26a72de3e0222790da305"
+const MIMALLOC_VERSION = "3.5.3"
+const MIMALLOC_HASH = "3b4a15153a59905995f7070296ed604bb5ccc00cabb8b93446931aff77224d47"
 
 const ZLIBNG_VERSION = "2.3.3"
 const ZLIBNG_HASH = "f9c65aa9c852eb8255b636fd9f07ce1c406f061ec19a2e7d508b318ca0c907d1"
@@ -18,8 +18,8 @@ const AWSLC_HASH = "8cb24c6e6be1fa7ff05075c4560ca8b537a7ef48f9e6f465af4ea455794d
 const OPENSSL_VERSION = "4.0.3"
 const OPENSSL_HASH = "325b5c806167c13b40b1ffeadfe0248197c00eccc4cf123ec1e28d2d2fd216d9"
 
-const CARES_VERSION = "1.34.8"
-const CARES_HASH = "c222b6d681096f9444d2c4863d2c1174019e27cacca0a4a5c114d36dd7d7bf78"
+const CARES_VERSION = "1.34.9"
+const CARES_HASH = "9364b70a12eb59a06830fb488d9357f90100dff0d98b23ea3593a183d43e6f2f"
 
 # nghttp3-${NGHTTP3_VERSION}.tar.xz
 const NGHTTP3_VERSION = "1.18.0"
@@ -42,8 +42,8 @@ const PCRE2_VERSION = "10.49"
 const PCRE2_HASH = "929f0b20e62879252a15886b06c89f1edef61a363cbd5826fb041080a5e557ae"
 
 # https://github.com/libexpat/libexpat/releases/download/R_2_7_3/expat-2.7.3.tar.xz
-const EXPAT_VERSION = "2.8.5"
-const EXPAT_HASH = "1e727b8933ec51a77a9a9d9afcf8e688bce45d907c13e36ab7393fe36e703182"
+const EXPAT_VERSION = "2.9.0"
+const EXPAT_HASH = "1e6371862cc31999b368c3b89b49994f0677e1bab5f1b2b85ae3741f5d803051"
 
 # https://www.kernel.org/pub/software/scm/git/git-2.56.0.tar.gz
 const GIT_VERSION = "2.56.0"
