@@ -12,8 +12,8 @@ const BROTLI_HASH = "98d35d11a78dc453aebb7d10c3748f3f73ff78c8267c0dc697b8631f67b
 const ZSTD_VERSION = "1.5.7"
 const ZSTD_HASH = "eb33e51f49a15e023950cd7825ca74a4a2b43db8354825ac24fc1b7ee09e6fa3"
 
-const AWSLC_VERSION = "5.14.0"
-const AWSLC_HASH = "8895a9d2434e875e009e652a1015f9c2c275261634c7132253ca5aa60d266888"
+const AWSLC_VERSION = "5.15.0"
+const AWSLC_HASH = "66e7132566cf2356b16ae79a9b57ea7a75ad6d65a41408753b08569c7db02921"
 
 const OPENSSL_VERSION = "4.1.0"
 const OPENSSL_HASH = "50c17baf54cb008f6ce42d50deb4b28050a1aad711636cabd4b241c7e90cc2fd"
@@ -42,12 +42,12 @@ const PCRE2_VERSION = "10.49"
 const PCRE2_HASH = "929f0b20e62879252a15886b06c89f1edef61a363cbd5826fb041080a5e557ae"
 
 # https://github.com/libexpat/libexpat/releases/download/R_2_7_3/expat-2.7.3.tar.xz
-const EXPAT_VERSION = "2.9.0"
-const EXPAT_HASH = "1e6371862cc31999b368c3b89b49994f0677e1bab5f1b2b85ae3741f5d803051"
+const EXPAT_VERSION = "2.10.0"
+const EXPAT_HASH = "c624ba2998fc65df1163a49641ff3f9ab73138b11641d92c86bee0fb01b1bc7f"
 
-# https://www.kernel.org/pub/software/scm/git/git-2.56.0.tar.gz
-const GIT_VERSION = "2.56.0"
-const GIT_HASH = "826817fd3671b8565586d6d49f688298de8354ab11db829c02720e5c74b9b39f"
+# https://www.kernel.org/pub/software/scm/git/git-2.56.1.tar.gz
+const GIT_VERSION = "2.56.1"
+const GIT_HASH = "fd0c0495427dc9ac445fdced8e36bb5eb6f233a14da5db3c6dfd8dcfa7f85761"
 
 let MIMALLOC_URL = $"https://github.com/microsoft/mimalloc/archive/refs/tags/v($MIMALLOC_VERSION).tar.gz"
 let MIMALLOC_DIRNAME = $"mimalloc-($MIMALLOC_VERSION)"
