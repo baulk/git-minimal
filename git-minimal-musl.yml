@@ -2,7 +2,7 @@
 name: "git-minimal-musl"
 arch: "${BUILD_ARCH}"
 platform: linux
-version: "2.52.0"
+version: "2.56.1"
 release: "${BUILD_RELEASE}"
 maintainer: "J23 <fcharlie@users.noreply.github.com>"
 vendor: Baulk
