@@ -42,7 +42,7 @@ tar -xvf nfpm_2.47.0_Linux_x86_64.tar.gz || exit
 sudo mv -f nfpm /usr/local/bin || exit
 cd "$SOURCE_DIR" || exit
 
-MUSL_CROSS_VERSION="20260515"
+MUSL_CROSS_VERSION="20261001"
 MOLD_VERSION="2.41.0"
 case $BUILD_TARGET in
 x86_64-linux-musl)
