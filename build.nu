@@ -58,7 +58,7 @@ let ZLIBNG_DIRNAME = $"zlib-ng-($ZLIBNG_VERSION)"
 let BROTLI_URL = $"https://github.com/google/brotli/archive/v($BROTLI_VERSION).tar.gz"
 let BROTLI_DIRNAME = $"brotli-($BROTLI_VERSION)"
 
-let ZSTD_URL = $"https://github.com/facebook/zstd/releases/download/v($ZSTD_VERSION)/zstd-($ZSTD_VERSION).tar.gz"
+let ZSTD_URL = $"https://github.com/meta/zstd/releases/download/v($ZSTD_VERSION)/zstd-($ZSTD_VERSION).tar.gz"
 let ZSTD_DIRNAME = $"zstd-($ZSTD_VERSION)"
 
 # https://github.com/aws/aws-lc/archive/refs/tags/v1.66.2.tar.gz
